@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1143</width>
+    <height>832</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
+     <widget class="QVTKWidget" name="qvtkwidget" native="true">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+        <horstretch>10</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>500</width>
+        <height>200</height>
+       </size>
+      </property>
+      <property name="sizeIncrement">
+       <size>
+        <width>10</width>
+        <height>10</height>
+       </size>
+      </property>
+      <property name="baseSize">
+       <size>
+        <width>0</width>
+        <height>0</height>
+       </size>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1143</width>
+     <height>23</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+  <widget class="QToolBar" name="toolBar_2">
+   <property name="windowTitle">
+    <string>toolBar_2</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>LeftToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionOpen"/>
+   <addaction name="actionSave"/>
+   <addaction name="actionReload"/>
+   <addaction name="actionBack"/>
+   <addaction name="separator"/>
+   <addaction name="actionNoGround"/>
+   <addaction name="actionCutGround"/>
+   <addaction name="actionvoxel"/>
+   <addaction name="actionLinear"/>
+   <addaction name="separator"/>
+   <addaction name="actionCheck"/>
+   <addaction name="actionSelectMode"/>
+   <addaction name="actionDbscan"/>
+   <addaction name="actionPlus"/>
+   <addaction name="actionExchange"/>
+   <addaction name="actionChange"/>
+  </widget>
+  <action name="actionOpen">
+   <property name="icon">
+    <iconset resource="Icons.qrc">
+     <normaloff>:/Open.ico</normaloff>:/Open.ico</iconset>
+   </property>
+   <property name="text">
+    <string>Open</string>
+   </property>
+   <property name="toolTip">
+    <string>打开文件</string>
+   </property>
+  </action>
+  <action name="actionSave">
+   <property name="icon">
+    <iconset resource="Icons.qrc">
+     <normaloff>:/Save.ico</normaloff>:/Save.ico</iconset>
+   </property>
+   <property name="text">
+    <string>Save</string>
+   </property>
+   <property name="toolTip">
+    <string>导出文件</string>
+   </property>
+  </action>
+  <action name="actionReload">
+   <property name="icon">
+    <iconset resource="Icons.qrc">
+     <normaloff>:/Reload.ico</normaloff>:/Reload.ico</iconset>
+   </property>
+   <property name="text">
+    <string>Reload</string>
+   </property>
+   <property name="toolTip">
+    <string>重载</string>
+   </property>
+  </action>
+  <action name="actionNoGround">
+   <property name="icon">
+    <iconset resource="Icons.qrc">
+     <normaloff>:/NoGround.ico</normaloff>:/NoGround.ico</iconset>
+   </property>
+   <property name="text">
+    <string>NoGround</string>
+   </property>
+   <property name="toolTip">
+    <string>地面过滤</string>
+   </property>
+  </action>
+  <action name="actionCutGround">
+   <property name="icon">
+    <iconset resource="Icons.qrc">
+     <normaloff>:/CutGround.ico</normaloff>:/CutGround.ico</iconset>
+   </property>
+   <property name="text">
+    <string>CutGround</string>
+   </property>
+   <property name="toolTip">
+    <string>水平切割</string>
+   </property>
+  </action>
+  <action name="actionvoxel">
+   <property name="icon">
+    <iconset resource="Icons.qrc">
+     <normaloff>:/voxel.ico</normaloff>:/voxel.ico</iconset>
+   </property>
+   <property name="text">
+    <string>Voxel</string>
+   </property>
+   <property name="toolTip">
+    <string>点云缩放</string>
+   </property>
+  </action>
+  <action name="actionLinear">
+   <property name="icon">
+    <iconset resource="Icons.qrc">
+     <normaloff>:/linear.ico</normaloff>:/linear.ico</iconset>
+   </property>
+   <property name="text">
+    <string>Linear</string>
+   </property>
+   <property name="toolTip">
+    <string>线性提取</string>
+   </property>
+  </action>
+  <action name="actionBack">
+   <property name="icon">
+    <iconset resource="Icons.qrc">
+     <normaloff>:/back.ico</normaloff>:/back.ico</iconset>
+   </property>
+   <property name="text">
+    <string>Back</string>
+   </property>
+   <property name="toolTip">
+    <string>回退</string>
+   </property>
+  </action>
+  <action name="actionExchange">
+   <property name="icon">
+    <iconset resource="Icons.qrc">
+     <normaloff>:/Exchange.ico</normaloff>:/Exchange.ico</iconset>
+   </property>
+   <property name="text">
+    <string>Exchange</string>
+   </property>
+   <property name="toolTip">
+    <string>点云切换</string>
+   </property>
+  </action>
+  <action name="actionChange">
+   <property name="icon">
+    <iconset resource="Icons.qrc">
+     <normaloff>:/Convert.ico</normaloff>:/Convert.ico</iconset>
+   </property>
+   <property name="text">
+    <string>Change</string>
+   </property>
+   <property name="toolTip">
+    <string>固定点云</string>
+   </property>
+  </action>
+  <action name="actionDbscan">
+   <property name="icon">
+    <iconset resource="Icons.qrc">
+     <normaloff>:/dbscan.ico</normaloff>:/dbscan.ico</iconset>
+   </property>
+   <property name="text">
+    <string>Dbscan</string>
+   </property>
+   <property name="toolTip">
+    <string>电线提取</string>
+   </property>
+  </action>
+  <action name="actionPlus">
+   <property name="icon">
+    <iconset resource="Icons.qrc">
+     <normaloff>:/plus.ico</normaloff>:/plus.ico</iconset>
+   </property>
+   <property name="text">
+    <string>Plus</string>
+   </property>
+   <property name="toolTip">
+    <string>添加KML</string>
+   </property>
+  </action>
+  <action name="actionCheck">
+   <property name="icon">
+    <iconset resource="Icons.qrc">
+     <normaloff>:/check.ico</normaloff>:/check.ico</iconset>
+   </property>
+   <property name="text">
+    <string>Check</string>
+   </property>
+   <property name="toolTip">
+    <string>框选确定</string>
+   </property>
+  </action>
+  <action name="actionSelectMode">
+   <property name="icon">
+    <iconset resource="Icons.qrc">
+     <normaloff>:/Select.ico</normaloff>:/Select.ico</iconset>
+   </property>
+   <property name="text">
+    <string>SelectMode</string>
+   </property>
+   <property name="toolTip">
+    <string>选择模式</string>
+   </property>
+  </action>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QVTKWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">QVTKWidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="Icons.qrc"/>
+ </resources>
+ <connections/>
+</ui>

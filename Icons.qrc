@@ -1,0 +1,19 @@
+<RCC>
+    <qresource prefix="/">
+        <file>logo.ico</file>
+        <file>Reload.ico</file>
+        <file>Open.ico</file>
+        <file>Save.ico</file>
+        <file>CutGround.ico</file>
+        <file>NoGround.ico</file>
+        <file>voxel.ico</file>
+        <file>linear.ico</file>
+        <file>back.ico</file>
+        <file>Exchange.ico</file>
+        <file>Convert.ico</file>
+        <file>dbscan.ico</file>
+        <file>plus.ico</file>
+        <file>check.ico</file>
+        <file>Select.ico</file>
+    </qresource>
+</RCC>
