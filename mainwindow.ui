@@ -74,18 +74,17 @@
    <addaction name="actionNoGround"/>
    <addaction name="actionCutGround"/>
    <addaction name="actionvoxel"/>
-   <addaction name="actionLinear"/>
    <addaction name="separator"/>
    <addaction name="actionCheck"/>
-   <addaction name="actionSelectMode"/>
    <addaction name="actionDbscan"/>
+   <addaction name="actionSelectMode"/>
+   <addaction name="actionFix"/>
    <addaction name="actionPlus"/>
    <addaction name="actionExchange"/>
-   <addaction name="actionChange"/>
   </widget>
   <action name="actionOpen">
    <property name="icon">
-    <iconset resource="Icons.qrc">
+    <iconset>
      <normaloff>:/Open.ico</normaloff>:/Open.ico</iconset>
    </property>
    <property name="text">
@@ -97,7 +96,7 @@
   </action>
   <action name="actionSave">
    <property name="icon">
-    <iconset resource="Icons.qrc">
+    <iconset>
      <normaloff>:/Save.ico</normaloff>:/Save.ico</iconset>
    </property>
    <property name="text">
@@ -109,7 +108,7 @@
   </action>
   <action name="actionReload">
    <property name="icon">
-    <iconset resource="Icons.qrc">
+    <iconset>
      <normaloff>:/Reload.ico</normaloff>:/Reload.ico</iconset>
    </property>
    <property name="text">
@@ -121,7 +120,7 @@
   </action>
   <action name="actionNoGround">
    <property name="icon">
-    <iconset resource="Icons.qrc">
+    <iconset>
      <normaloff>:/NoGround.ico</normaloff>:/NoGround.ico</iconset>
    </property>
    <property name="text">
@@ -133,7 +132,7 @@
   </action>
   <action name="actionCutGround">
    <property name="icon">
-    <iconset resource="Icons.qrc">
+    <iconset>
      <normaloff>:/CutGround.ico</normaloff>:/CutGround.ico</iconset>
    </property>
    <property name="text">
@@ -145,7 +144,7 @@
   </action>
   <action name="actionvoxel">
    <property name="icon">
-    <iconset resource="Icons.qrc">
+    <iconset>
      <normaloff>:/voxel.ico</normaloff>:/voxel.ico</iconset>
    </property>
    <property name="text">
@@ -157,7 +156,7 @@
   </action>
   <action name="actionLinear">
    <property name="icon">
-    <iconset resource="Icons.qrc">
+    <iconset>
      <normaloff>:/linear.ico</normaloff>:/linear.ico</iconset>
    </property>
    <property name="text">
@@ -169,7 +168,7 @@
   </action>
   <action name="actionBack">
    <property name="icon">
-    <iconset resource="Icons.qrc">
+    <iconset>
      <normaloff>:/back.ico</normaloff>:/back.ico</iconset>
    </property>
    <property name="text">
@@ -181,7 +180,7 @@
   </action>
   <action name="actionExchange">
    <property name="icon">
-    <iconset resource="Icons.qrc">
+    <iconset>
      <normaloff>:/Exchange.ico</normaloff>:/Exchange.ico</iconset>
    </property>
    <property name="text">
@@ -191,21 +190,9 @@
     <string>点云切换</string>
    </property>
   </action>
-  <action name="actionChange">
-   <property name="icon">
-    <iconset resource="Icons.qrc">
-     <normaloff>:/Convert.ico</normaloff>:/Convert.ico</iconset>
-   </property>
-   <property name="text">
-    <string>Change</string>
-   </property>
-   <property name="toolTip">
-    <string>固定点云</string>
-   </property>
-  </action>
   <action name="actionDbscan">
    <property name="icon">
-    <iconset resource="Icons.qrc">
+    <iconset>
      <normaloff>:/dbscan.ico</normaloff>:/dbscan.ico</iconset>
    </property>
    <property name="text">
@@ -217,7 +204,7 @@
   </action>
   <action name="actionPlus">
    <property name="icon">
-    <iconset resource="Icons.qrc">
+    <iconset>
      <normaloff>:/plus.ico</normaloff>:/plus.ico</iconset>
    </property>
    <property name="text">
@@ -229,7 +216,7 @@
   </action>
   <action name="actionCheck">
    <property name="icon">
-    <iconset resource="Icons.qrc">
+    <iconset>
      <normaloff>:/check.ico</normaloff>:/check.ico</iconset>
    </property>
    <property name="text">
@@ -241,7 +228,7 @@
   </action>
   <action name="actionSelectMode">
    <property name="icon">
-    <iconset resource="Icons.qrc">
+    <iconset>
      <normaloff>:/Select.ico</normaloff>:/Select.ico</iconset>
    </property>
    <property name="text">
@@ -249,6 +236,14 @@
    </property>
    <property name="toolTip">
     <string>选择模式</string>
+   </property>
+  </action>
+  <action name="actionFix">
+   <property name="text">
+    <string>Fix</string>
+   </property>
+   <property name="toolTip">
+    <string>点云补全</string>
    </property>
   </action>
  </widget>
@@ -260,8 +255,6 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources>
-  <include location="Icons.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

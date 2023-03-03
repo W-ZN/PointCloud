@@ -13,11 +13,14 @@ SOURCES += \
     color_selecter.cpp \
     curve_fitting.cpp \
     cutplane.cpp \
+    dbscan_arg.cpp \
     filter_csf.cpp \
     filter_guass.cpp \
     filter_pt.cpp \
     filter_voxel.cpp \
     fitting.cpp \
+    fix.cpp \
+    fix_arg.cpp \
     main.cpp \
     mainwindow.cpp \
     pcl_function.cpp \
@@ -31,11 +34,14 @@ HEADERS += \
     color_selecter.h \
     curve_fitting.h \
     cutplane.h \
+    dbscan_arg.h \
     filter_csf.h \
     filter_guass.h \
     filter_pt.h \
     filter_voxel.h \
     fitting.h \
+    fix.h \
+    fix_arg.h \
     mainwindow.h \
     pcl_function.h \
     tinyxml2.h \
@@ -43,10 +49,12 @@ HEADERS += \
 
 FORMS += \
     cutplane.ui \
+    dbscan_arg.ui \
     filter_csf.ui \
     filter_guass.ui \
     filter_pt.ui \
     filter_voxel.ui \
+    fix_arg.ui \
     mainwindow.ui \
     view_rendering.ui
 

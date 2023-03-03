@@ -49,6 +49,9 @@ VTK_MODULE_INIT(vtkRenderingFreeType)
 #include "view_rendering.h"
 #include "cutplane.h"
 #include "changepoint.h"
+#include "dbscan_arg.h"
+#include "fix.h"
+#include "Fix_arg.h"
 
 namespace Ui {
     class MainWindow;
@@ -100,7 +103,6 @@ private slots:
     void on_actionLinear_triggered();
     void on_actionBack_triggered();
     void on_actionExchange_triggered();
-    void on_actionChange_triggered();
     void on_actionDbscan_triggered();
     void on_actionPlus_triggered();
     void on_actionCheck_triggered();
@@ -110,13 +112,16 @@ private slots:
     void Cut(QString data1, QString data2);
     void PointVoxel();
     void fitMultipleLines(int n, std::vector<pcl::ModelCoefficients>& lineCoff);
+    void show_dbscan(QString data1, QString data2);
 
     void enterEvent(QEvent *event);
     void leaveEvent(QEvent *event);
     bool eventFilter(QObject *watched, QEvent *event);
 //    void keyPressEvent(QKeyEvent *event);
-
     void on_actionSelectMode_triggered();
+
+    void on_actionFix_triggered();
+    void Fixline(QString data);
 
 private:
     Ui::MainWindow *ui;
@@ -131,8 +136,11 @@ private:
     Filter_voxel *dialog_voxel;
     Filter_csf *dialog_csf;
     CutPlane *dialog_cut;
+    Dbscan_arg *dbscan_arg;
+    Fix_arg *fix_arg;
     View_rendering *dialog_render;
     Color_selecter *dialog_colorselect;
+
     static bool select;
     static void pp_callback(const pcl::visualization::AreaPickingEvent& event, void* args);
 };

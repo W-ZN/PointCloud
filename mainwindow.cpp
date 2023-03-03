@@ -8,6 +8,7 @@
 #include "KMeans.h"
 #include "fitting.h"
 #include "curve_fitting.h"
+#include "dbscan_arg.h"
 
 // 添加菜单栏、工具栏、状态栏等
 #include <string>
@@ -19,6 +20,8 @@
 #include <QToolBar>
 #include <QStatusBar>
 #include <QMouseEvent>
+#include <QAbstractButton>
+#include <QProgressDialog>
 #include <QStandardItemModel>
 #include <QAbstractAnimation>
 
@@ -30,6 +33,8 @@ using namespace tinyxml2;
 int num = 0;
 int status = 0;
 int kml_num = 0;
+double dbscan_esp = 0;
+double dbscan_pts = 0;
 unsigned char* pointmark;
 XMLDocument doc;
 pcl::PointCloud<pcl::PointXYZ> nul;         // 空点云
@@ -40,11 +45,12 @@ pcl::PointCloud<pcl::PointXYZ> back;        // 回退点云
 boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer;
 pcl::PointCloud<pcl::PointXYZ>::Ptr clicked_points_3d(new pcl::PointCloud<pcl::PointXYZ>);
 pcl::PointCloud<pcl::PointXYZRGB>::Ptr dbscan_all_cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
-pcl::PointCloud<pcl::PointXYZRGB>::Ptr selected_cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
+pcl::PointCloud<pcl::PointXYZ>::Ptr selected_cloud(new pcl::PointCloud<pcl::PointXYZ>);
 
 bool MainWindow::select = false; // 初始化静态全局变量 select
 
-//void pp_callback(const pcl::visualization::AreaPickingEvent& event, void* args);
+void dbscan_with_density(pcl::PointCloud<pcl::PointXYZ>::Ptr input_cloud, std::vector<pcl::Indices>& cluster_indices);
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -163,15 +169,6 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
     return QMainWindow::eventFilter(watched, event);
 }
 
-//void MainWindow::keyPressEvent(QKeyEvent *event)
-//{
-//    if (event->key() == Qt::Key_S) {
-//        std::cout << "s: " << std::endl;
-//        select = !select;
-//    }
-//}
-
-
 void MainWindow::enterEvent(QEvent *event)
 {
     QMainWindow::enterEvent(event);
@@ -263,18 +260,20 @@ void MainWindow::Open_clicked() {
         cloud = *cloudTemp;
         cloudReload = *cloudTemp;
     }
-    else QMessageBox::warning(this, "Warning", "点云读取错误   ");
+    else if(cloud.empty()) return;
 
 //    cloud_vec.push_back(cloud.makeShared());
 //    cloud_index.push_back(1);
 
     pointmark = new unsigned char[cloud.size()];
-    for (size_t i = 0; i < cloud.size(); i++)
-    {
-         pointmark[i] = 0;      //初始化点云分类标识，0为未标记点
-    }
 
     back = cloud;
+
+    pcl::PointCloud<pcl::PointXYZ>::Ptr nu(new pcl::PointCloud<pcl::PointXYZ>);
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr nu_(new pcl::PointCloud<pcl::PointXYZRGB>);
+    clicked_points_3d = nu;
+    dbscan_all_cloud = nu_;
+    selected_cloud = nu;
 
     // 显示点云数量
     int size = static_cast<int>(cloud.size());
@@ -805,12 +804,20 @@ void MainWindow::on_actionSave_triggered()
 // 三、点云重载
 void MainWindow::on_actionReload_triggered()
 {
-//    if (cloud.empty()) {
-//        QMessageBox::warning(this, "Warning", "无点云输入！");
-//        return;
-//    }
+    if (cloudReload.empty()) {
+        QMessageBox::warning(this, "Warning", "无点云输入！");
+        return;
+    }
 
     cloud = cloudReload;
+
+    pointmark = new unsigned char[cloud.size()];
+
+    pcl::PointCloud<pcl::PointXYZ>::Ptr nu(new pcl::PointCloud<pcl::PointXYZ>);
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr nu_(new pcl::PointCloud<pcl::PointXYZRGB>);
+    clicked_points_3d = nu;
+    dbscan_all_cloud = nu_;
+    selected_cloud = nu;
 
     // 显示点云数量
     int size = static_cast<int>(cloud.size());
@@ -835,7 +842,16 @@ void MainWindow::on_actionReload_triggered()
 void MainWindow::on_actionBack_triggered()
 {
 
+//    if (cloud_.empty()) {
+//        QMessageBox::warning(this, "Warning", "当前无退回！");
+//        return;
+//    }
+
     cloud = back;
+    pointmark = new unsigned char[cloud.size()];
+
+    pcl::PointCloud<pcl::PointXYZ>::Ptr nu(new pcl::PointCloud<pcl::PointXYZ>);
+    clicked_points_3d = nu;
 
     // 显示点云数量
     int size = static_cast<int>(cloud.size());
@@ -859,19 +875,27 @@ void MainWindow::on_actionBack_triggered()
 // 五、地面去除
 void MainWindow::on_actionNoGround_triggered()
 {
-//    if (cloud.empty()) {
-//        QMessageBox::warning(this, "Warning", "无点云输入！");
-//        return;
-//    }
+    if (cloud.empty()) {
+        QMessageBox::warning(this, "Warning", "当前无点云！");
+        return;
+    }
 
+    QProgressDialog progressDialog("正在进行中", "取消", 0, 0, this);
+    progressDialog.setWindowTitle("提示");
+    progressDialog.setWindowModality(Qt::WindowModal);
+    progressDialog.show();
+
+    QFutureWatcher<void> watcher;
     MainWindow::on_NoGroud();
+
+
 }
 
 // 六、平面切割
 void MainWindow::on_actionCutGround_triggered()
 {
     if (cloud.empty()) {
-        QMessageBox::warning(this, "Warning", "无点云输入！");
+        QMessageBox::warning(this, "Warning", "当前无点云！");
         return;
     }
 
@@ -885,7 +909,7 @@ void MainWindow::on_actionCutGround_triggered()
 void MainWindow::on_actionvoxel_triggered()
 {
     if (cloud.empty()) {
-        QMessageBox::warning(this, "Warning", "无点云输入！");
+        QMessageBox::warning(this, "Warning", "当前无点云！");
         return;
     }
 
@@ -896,7 +920,7 @@ void MainWindow::on_actionvoxel_triggered()
 void MainWindow::on_actionLinear_triggered()
 {
     if (cloud.empty()) {
-        QMessageBox::warning(this, "Warning", "无点云输入！");
+        QMessageBox::warning(this, "Warning", "当前无点云！");
         return;
     }
 
@@ -906,6 +930,11 @@ void MainWindow::on_actionLinear_triggered()
 // 九、确定范围
 void MainWindow::on_actionCheck_triggered()
 {
+    if (cloud.empty()) {
+        QMessageBox::warning(this, "Warning", "当前无点云！");
+        return;
+    }
+
     linecloud = nul;
     linecloud = *clicked_points_3d;
 
@@ -913,17 +942,39 @@ void MainWindow::on_actionCheck_triggered()
 }
 
 // 十、选择模式
-void MainWindow::on_actionSelectMode_triggered() {
+void MainWindow::on_actionSelectMode_triggered()
+{
+    if (cloud.empty()) {
+        QMessageBox::warning(this, "Warning", "当前无点云！");
+        return;
+    }
+
     select = !select;
 }
 
 // 十一、分割展示
 void MainWindow::on_actionDbscan_triggered()
 {
+    if (cloud.empty()) {
+        QMessageBox::warning(this, "Warning", "当前无点云！");
+        return;
+    }
+
+    dbscan_arg = new Dbscan_arg();
+    connect(dbscan_arg, SIGNAL(sendData(QString, QString)), this, SLOT(show_dbscan(QString, QString)));
+    if (dbscan_arg->exec() == QDialog::Accepted) {};
+    delete dbscan_arg;
+}
+
+void MainWindow::show_dbscan(QString data1, QString data2) {
+    dbscan_esp = data1.toDouble();
+    dbscan_pts = data2.toDouble();
+    std::cout << "esp: " << dbscan_esp << std::endl;
+    std::cout << "pts: " << dbscan_pts << std::endl;
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_in(new pcl::PointCloud<pcl::PointXYZ>);
     cloud_in = linecloud.makeShared();
     std::vector<pcl::Indices> cluster_indices;
-    dbscan(*cloud_in, cluster_indices, 2.3, 15); // 2表示聚类的领域距离为2米，50表示聚类的最小点数。
+    dbscan(*cloud_in, cluster_indices, dbscan_esp, dbscan_pts); // 2表示聚类的领域距离为2米，50表示聚类的最小点数。
 
     int begin = 1;
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr null_(new pcl::PointCloud<pcl::PointXYZRGB>);
@@ -971,8 +1022,54 @@ void MainWindow::on_actionDbscan_triggered()
     ui->qvtkwidget->update();
 }
 
+void MainWindow::on_actionFix_triggered()
+{
+    if (selected_cloud->empty()) {
+        QMessageBox::warning(this, "Warning", "当前无点云！");
+        return;
+    }
+
+    fix_arg = new Fix_arg();
+    connect(fix_arg, SIGNAL(sendData(QString)), this, SLOT(Fixline(QString)));
+    if (fix_arg->exec() == QDialog::Accepted) {};
+    delete fix_arg;
+}
+
+void MainWindow::Fixline(QString data)
+{
+    std::vector<double>x_mean, y_mean, z_mean;
+    pcl::PointCloud<pcl::PointXYZ>::Ptr point_mean(new pcl::PointCloud<pcl::PointXYZ>);
+    /*参数设置：分辨率 曲线个数*/
+    double x_resolution = 2.0;
+    double y_resolution = -1;
+    int num_line = data.toInt();
+
+    Fixing fixs(x_resolution, y_resolution,num_line);
+    fixs.setinputcloud(selected_cloud);
+    fixs.grid_mean_xyz(x_mean, y_mean, z_mean, point_mean);
+    std::cout<<"The points size of  point_mean is :  "<<point_mean->points.size()<<std::endl;
+    //求出曲线的端点
+    std::vector<pcl::PointXYZ> endPoints;
+    fixs.getEndPoints(point_mean,endPoints);
+    //插值
+    pcl::PointCloud<pcl::PointXYZ>::Ptr inter_pc(new pcl::PointCloud<pcl::PointXYZ>);
+    fixs.getInterPoints(endPoints,inter_pc);
+    std::cout<<inter_pc->points.size()<<std::endl;
+
+    //可视化
+    fixs.display(selected_cloud);
+    fixs.display(inter_pc);
+    pcl::PointCloud<pcl::PointXYZ>::Ptr nu(new pcl::PointCloud<pcl::PointXYZ>);
+    selected_cloud = nu;
+}
+
 // 十二、kml导入
 void MainWindow::on_actionPlus_triggered() {
+
+    if (cloud.empty()) {
+        QMessageBox::warning(this, "Warning", "当前无点云！");
+        return;
+    }
 
     const char* declaration = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
     XMLError ret = doc.Parse(declaration);
@@ -1013,7 +1110,7 @@ void MainWindow::on_actionPlus_triggered() {
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_in(new pcl::PointCloud<pcl::PointXYZ>);
     cloud_in = linecloud.makeShared();
     std::vector<pcl::Indices> cluster_indices;
-    dbscan(*cloud_in, cluster_indices, 2, 15); // 2表示聚类的领域距离为2米，50表示聚类的最小点数。
+    dbscan(*cloud_in, cluster_indices, dbscan_esp, dbscan_pts); // 2表示聚类的领域距离为2米，50表示聚类的最小点数。
 
     int begin = 1;
     pcl::PointCloud<pcl::PointXYZ>::Ptr dbscan_all_cloud(new pcl::PointCloud<pcl::PointXYZ>);
@@ -1094,11 +1191,18 @@ void MainWindow::on_actionExchange_triggered()
         return;
     }
 
-    // status：0 —— 未选至框选；1 —— 已选至框选；
-    if (!status) {
+    QMessageBox msgBox(this);
+    msgBox.setWindowTitle(tr("Confirm"));
+    msgBox.setText(tr("是否确定保留框选点云？"));
+    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    msgBox.setDefaultButton(QMessageBox::Yes);
+    msgBox.setButtonText(QMessageBox::Yes, tr("确定"));
+    msgBox.setButtonText(QMessageBox::No, tr("取消"));
+    int reply = msgBox.exec();
+
+    if (reply == QMessageBox::Yes) {
         cloud_ = cloud;
         cloud = *clicked_points_3d;
-        status = 1;
 
         // 显示点云数量
         int size = static_cast<int>(cloud.size());
@@ -1119,56 +1223,10 @@ void MainWindow::on_actionExchange_triggered()
         // 初始化 pointmark
         pointmark = new unsigned char[clicked_points_3d->size()];
         memset(pointmark, 0, cloud.size() * sizeof(unsigned char));
-
-    } else if (status == 1) {
-        cloud = cloud_   ;
-        cloud_ = nul;
-        status = 0;
-
-        // 显示点云数量
-        int size = static_cast<int>(cloud.size());
-        QString PointSize = QString("%1").arg(size);
-        ui->statusBar->showMessage("点云数量: "+PointSize);
-
-        //移除窗口点云
-        viewer->removeAllPointClouds();
-        viewer->removeAllShapes();
-
-        //点云设置
-        pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> red(clicked_points_3d, 255, 0, 0);
-        viewer->addPointCloud(cloud.makeShared(), cloud_name[0]);
-        viewer->addPointCloud(clicked_points_3d, red, cloud_name[1]);
-        viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, point_size, cloud_name[0]);
-        viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, point_size, cloud_name[1]);
-        viewer->resetCamera();
-        ui->qvtkwidget->update();
-
-        // 初始化 pointmark
-        pointmark = new unsigned char[clicked_points_3d->size()];
-        memset(pointmark, 0, cloud.size() * sizeof(unsigned char));
-    }
-}
-
-// 十四、锚点确定
-void MainWindow::on_actionChange_triggered()
-{
-    if (status == 0) {
-        QMessageBox::warning(this, "Warning", "请确定现在已经显示框选点云！");
+    } else {
+        // 如果用户点击了“取消”，则什么都不做
         return;
-    } else if (status == 1) {
-        status = 0;
-        cloud = *clicked_points_3d;
-
-        // 初始化 pointmark
-        pointmark = new unsigned char[clicked_points_3d->size()];
-        memset(pointmark, 0, cloud.size() * sizeof(unsigned char));
-        clicked_points_3d->clear();
-
-//        viewer->addPointCloud(cloud.makeShared());
-//        viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, point_size);
-//        viewer->resetCamera();
-//        ui->qvtkwidget->update();
-    };
+    }
 }
 
 // 点云框选
@@ -1212,7 +1270,6 @@ void MainWindow::pp_callback(const pcl::visualization::AreaPickingEvent& event, 
         cloudName += "_cloudName";
 
         //显示点云
-        viewer->addPointCloud(cloud.makeShared());
         viewer->addPointCloud(clicked_points_3d, red, cloudName);
         viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 3, cloudName);
     } else if (select) {
@@ -1247,18 +1304,24 @@ void MainWindow::pp_callback(const pcl::visualization::AreaPickingEvent& event, 
         std::cout << "Selected color: " << (int)r << ", " << (int)g << ", " << (int)b << std::endl;
 
         // 选择颜色相同的点云
-        pcl::PointCloud<pcl::PointXYZRGB>::Ptr selected(new pcl::PointCloud<pcl::PointXYZRGB>);
+        pcl::PointCloud<pcl::PointXYZ>::Ptr selected(new pcl::PointCloud<pcl::PointXYZ>);
         for (int i = 0; i < dbscan_all_cloud->size(); ++i) {
             pcl::PointXYZRGB p = dbscan_all_cloud->points[i];
             if (p.r == r && p.g == g && p.b == b) {
-                selected->points.push_back(p);
+                pcl::PointXYZ q;
+                q.x = p.x;
+                q.y = p.y;
+                q.z = p.z;
+                selected->points.push_back(q);
             }
         }
 
-        pcl::copyPointCloud(*selected, *selected_cloud);
+        *selected_cloud += *selected;
         std::cout << "select: " << selected_cloud->size() << std:: endl;
     }
 }
+
+
 
 
 
